@@ -16,10 +16,13 @@ import yaml
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-
 # -----------------------------
 # Data models (no pydantic)
 # -----------------------------
+DOCS_ONLY_DOC_TYPES = {"ops_doc", "other"}
+LLM_CONTRACT_VIOLATION_PREFIX = "llm_contract_violation"
+
+
 @dataclass
 class LLMDecision:
     doc_type: str
@@ -62,6 +65,12 @@ class LLMDecision:
             project = str(project).strip() or None
         if vendor is not None:
             vendor = str(vendor).strip() or None
+
+        if doc_type not in DOCS_ONLY_DOC_TYPES:
+            reasons.append(
+                f"{LLM_CONTRACT_VIOLATION_PREFIX}:invalid_doc_type:{doc_type}"
+            )
+            doc_type = "other"
 
         return LLMDecision(
             doc_type=doc_type,
@@ -449,10 +458,12 @@ def llm_classify(
 ) -> Optional[LLMDecision]:
     system = (
         "Return ONLY one JSON object (no markdown, no extra text). "
-        "Keys: doc_type, project, vendor, date, suggested_name, confidence, reasons, tags. "
-        "doc_type must be one of: ops_doc, other, dev_archive, dev_note, photo. "
-        "date must be YYYY-MM-DD or null. confidence is 0..1. "
-        "reasons/tags are arrays of short strings."
+        "This task is DOCS-ONLY classification. "
+        "Required keys: doc_type, confidence, reasons. "
+        "Optional keys: suggested_name, tags. "
+        "doc_type must be one of: ops_doc, other. "
+        "confidence is 0..1. reasons/tags are arrays of short strings. "
+        "Do not output any additional keys."
     )
 
     user_obj = {
@@ -488,6 +499,13 @@ def llm_classify(
     if not dec.suggested_name:
         dec.suggested_name = str(file_meta.get("name", "unnamed"))
     return dec
+
+
+def has_llm_contract_violation(decision: LLMDecision) -> bool:
+    return any(
+        str(reason).startswith(LLM_CONTRACT_VIOLATION_PREFIX)
+        for reason in (decision.reasons or [])
+    )
 
 
 def warmup(llm_base_url: str) -> None:
@@ -637,12 +655,14 @@ def handle_file(
 
     docs_exts = set([str(x).lower() for x in (ext_groups.get("docs", []) or [])])
 
+    llm_used = False
     if decision is None or decision.confidence < 0.92:
         if ext in docs_exts:
             snippet = extract_snippet(p)
             meta = {"name": filename, "ext": ext, "size": p.stat().st_size}
             try:
                 llm_dec = llm_classify(llm_base_url, meta, snippet)
+                llm_used = True
             except requests.Timeout:
                 move_with_ledger(
                     paths,
@@ -691,6 +711,7 @@ def handle_file(
             )
 
     routing = resolve_destination(paths, mapping_cfg, decision)
+    contract_violation = llm_used and has_llm_contract_violation(decision)
 
     if decision.doc_type.startswith("dev_") or decision.doc_type in {
         "dev_code",
@@ -701,7 +722,10 @@ def handle_file(
     else:
         rename_policy = routing.rename_policy or "keep"
 
-    if routing.forced_quarantine:
+    if contract_violation:
+        dst_dir = paths.quarantine
+        reason = LLM_CONTRACT_VIOLATION_PREFIX
+    elif routing.forced_quarantine:
         dst_dir = paths.quarantine
         reason = routing.forced_reason or "forced_quarantine"
     else:
@@ -711,7 +735,10 @@ def handle_file(
             reason = gate_reason
         else:
             dst_dir = paths.quarantine
-            reason = gate_reason
+            if llm_used and gate_reason == "low_confidence":
+                reason = "llm_low_confidence"
+            else:
+                reason = gate_reason
 
     if rename_policy == "keep":
         new_name = filename
