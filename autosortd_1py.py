@@ -402,6 +402,30 @@ def resolve_destination(
             break
 
     dest_dir = paths.out / split_rel_path(str(dest_rel))
+
+    # Project-based sub-folder: if LLM identified a project, append it as subfolder.
+    # dev_* files are always excluded to preserve the NO-RENAME-DEV policy.
+    if decision.project and not decision.doc_type.startswith("dev_"):
+        safe_proj = safe_filename(decision.project, max_len=60)
+        if safe_proj:
+            project_overrides = mapping_cfg.get("project_overrides", []) or []
+            _proj_applied = False
+            for pov in project_overrides:
+                _pov_proj = str(pov.get("project", "")).strip()
+                _pov_types = list(pov.get("doc_types", []) or [])
+                _type_ok = (not _pov_types) or (decision.doc_type in _pov_types)
+                _name_ok = (_pov_proj == "__any__") or (_pov_proj == safe_proj)
+                if _name_ok and _type_ok:
+                    if pov.get("append_subdir", False):
+                        dest_dir = dest_dir / safe_proj
+                    elif pov.get("dest_rel_override"):
+                        dest_dir = paths.out / split_rel_path(str(pov["dest_rel_override"]))
+                    _proj_applied = True
+                    break
+            # Fallthrough: no matching rule → apply project subfolder by default
+            if not _proj_applied:
+                dest_dir = dest_dir / safe_proj
+
     rp = str(rp or "keep").strip().lower()
     if rp not in {"keep", "normalize"}:
         rp = "keep"
@@ -490,6 +514,74 @@ def llm_classify(
     return dec
 
 
+def _llm_classify_ollama(
+    base_url: str, file_meta: Dict[str, Any], snippet: str, timeout_s: int = 120
+) -> Optional[LLMDecision]:
+    """Ollama /api/chat 엔드포인트용 분류 함수."""
+    system = (
+        "Return ONLY one JSON object (no markdown, no extra text). "
+        "Keys: doc_type, project, vendor, date, suggested_name, confidence, reasons, tags. "
+        "doc_type must be one of: ops_doc, other, dev_archive, dev_note, photo. "
+        "date must be YYYY-MM-DD or null. confidence is 0..1. "
+        "reasons/tags are arrays of short strings."
+    )
+    user_obj = {
+        "file_meta": file_meta,
+        "content_snippet": snippet[:MAX_SNIPPET_CHARS],
+        "naming_rule": "suggested_name: keep short; prefer original filename unless clear.",
+    }
+    payload = {
+        "model": "qwen2:1.5b",
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": json.dumps(user_obj, ensure_ascii=False)},
+        ],
+        "stream": False,
+        "options": {"temperature": 0},
+    }
+    r = requests.post(
+        f"{base_url.rstrip('/')}/api/chat", json=payload, timeout=timeout_s
+    )
+    r.raise_for_status()
+    content = r.json()["message"]["content"]
+    js = _extract_json_obj(content)
+    if js is None:
+        return None
+    try:
+        data = json.loads(js)
+    except Exception:
+        return None
+    dec = LLMDecision.from_dict(data if isinstance(data, dict) else {})
+    if not dec.suggested_name:
+        dec.suggested_name = str(file_meta.get("name", "unnamed"))
+    return dec
+
+
+def llm_classify_with_retry(
+    base_url: str,
+    file_meta: Dict[str, Any],
+    snippet: str,
+    llm_type: str = "llama_cpp",
+    max_retries: int = 3,
+    timeout_s: int = 120,
+) -> Optional[LLMDecision]:
+    """지수 백오프 재시도(2s→4s→8s)로 LLM 분류 호출."""
+    delays = [2, 4, 8]
+    for attempt in range(max_retries):
+        try:
+            if llm_type == "ollama":
+                return _llm_classify_ollama(base_url, file_meta, snippet, timeout_s)
+            return llm_classify(base_url, file_meta, snippet, timeout_s)
+        except (requests.Timeout, requests.ConnectionError):
+            if attempt < max_retries - 1:
+                time.sleep(delays[attempt])
+            else:
+                raise
+        except requests.RequestException:
+            raise
+    return None
+
+
 def warmup(llm_base_url: str) -> None:
     payload = {
         "model": "not-used",
@@ -571,6 +663,7 @@ def handle_file(
     cache_path: Path,
     ledger_path: Path,
     p: Path,
+    llm_type: str = "llama_cpp",
 ) -> None:
     if not p.exists() or p.is_dir():
         return
@@ -642,7 +735,9 @@ def handle_file(
             snippet = extract_snippet(p)
             meta = {"name": filename, "ext": ext, "size": p.stat().st_size}
             try:
-                llm_dec = llm_classify(llm_base_url, meta, snippet)
+                llm_dec = llm_classify_with_retry(
+                    llm_base_url, meta, snippet, llm_type=llm_type
+                )
             except requests.Timeout:
                 move_with_ledger(
                     paths,
@@ -746,6 +841,7 @@ class Handler(FileSystemEventHandler):
         compiled_rules: List[CompiledRule],
         cache_path: Path,
         ledger_path: Path,
+        llm_type: str = "llama_cpp",
     ):
         self.paths = paths
         self.llm = llm_base_url
@@ -755,6 +851,7 @@ class Handler(FileSystemEventHandler):
         self.compiled_rules = compiled_rules
         self.cache_path = cache_path
         self.ledger_path = ledger_path
+        self.llm_type = llm_type
 
     def _handle(self, p: Path):
         try:
@@ -768,6 +865,7 @@ class Handler(FileSystemEventHandler):
                 self.cache_path,
                 self.ledger_path,
                 p,
+                llm_type=self.llm_type,
             )
         except Exception:
             try:
@@ -808,8 +906,19 @@ def sweep_existing(watch_dir: Path, handler: Handler) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=r"C:\_AUTOSORT")
-    ap.add_argument("--watch", default=str(Path.home() / "Downloads"))
+    ap.add_argument(
+        "--watch",
+        action="append",
+        default=None,
+        help="folder(s) to watch; repeat or comma-separate for multiple",
+    )
     ap.add_argument("--llm", default="http://127.0.0.1:8080/v1")
+    ap.add_argument(
+        "--llm-type",
+        choices=["llama_cpp", "ollama"],
+        default="llama_cpp",
+        help="LLM server type: llama_cpp (default) or ollama",
+    )
     ap.add_argument("--rules_dir", default=r"C:\_AUTOSORT\rules")
     ap.add_argument(
         "--sweep", action="store_true", help="process existing files at startup"
@@ -849,14 +958,22 @@ def main():
     cache_path = paths.cache / "cache.json"
     ledger_path = paths.logs / "ledger.jsonl"
 
-    warmup(args.llm)
-    print(f"LLM: {args.llm}")
+    try:
+        warmup(args.llm)
+        print(f"LLM OK: {args.llm} (type={args.llm_type})")
+    except Exception as e:
+        print(f"LLM warmup failed (will retry on use): {e}", file=sys.stderr)
 
-    watch_dir = Path(args.watch)
-    if not watch_dir.is_dir():
-        print(f"Error: --watch path is not a directory: {watch_dir}", file=sys.stderr)
-        raise SystemExit(1)
-    print(f"Watching: {watch_dir}")
+    # Build list of watch directories (supports --watch repeated or comma-separated)
+    watch_dirs_raw = args.watch or [str(Path.home() / "Downloads")]
+    watch_dirs: List[Path] = []
+    for wd_raw in watch_dirs_raw:
+        for part in wd_raw.split(","):
+            p = Path(part.strip())
+            if not p.is_dir():
+                print(f"Error: --watch path is not a directory: {p}", file=sys.stderr)
+                raise SystemExit(1)
+            watch_dirs.append(p)
 
     observer = Observer()
     h = Handler(
@@ -868,12 +985,16 @@ def main():
         compiled_rules,
         cache_path,
         ledger_path,
+        llm_type=args.llm_type,
     )
-    observer.schedule(h, str(watch_dir), recursive=False)
+    for wd in watch_dirs:
+        observer.schedule(h, str(wd), recursive=False)
+        print(f"Watching: {wd}")
     observer.start()
 
     if args.sweep:
-        sweep_existing(watch_dir, h)
+        for wd in watch_dirs:
+            sweep_existing(wd, h)
 
     try:
         while True:
