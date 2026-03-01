@@ -81,3 +81,33 @@ naming_templates:
   other: "{orig}"
   dev_archive: "{orig}"
   dev_code: "{orig}"
+
+# project_overrides: LLM이 project 필드를 반환할 때 적용할 규칙
+# append_subdir: true  → dest_rel 아래에 project명 서브폴더 생성
+# doc_types가 빈 목록이면 모든 doc_type에 적용
+# 첫 번째 매칭 규칙이 우선 적용됨
+project_overrides:
+  - project: "AGI_TR"
+    doc_types: ["ops_doc", "invoice", "contract", "cipl_pl_bl_boe_do"]
+    append_subdir: true
+
+  - project: "Mammoet"
+    doc_types: ["ops_doc", "invoice", "contract"]
+    append_subdir: true
+
+  - project: "HVDC"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  - project: "ADNOC"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  - project: "DPR"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  # 기타 모든 프로젝트: ops_doc에 한해 자동 서브폴더 생성
+  - project: "__any__"
+    doc_types: ["ops_doc"]
+    append_subdir: true
