@@ -25,7 +25,7 @@ ext_groups:
   dev_code: [".py", ".js", ".ts", ".tsx", ".json", ".yml", ".yaml", ".toml", ".ini", ".cfg", ".ps1", ".sh", ".bat", ".cmd", ".ipynb"]
   notes: [".md", ".txt"]
   images: [".jpg", ".jpeg", ".png", ".webp"]
-  docs: [".pdf", ".docx", ".xlsx", ".xlsm"]
+  docs: [".pdf", ".docx", ".xlsx", ".xlsm"]  # Routing group only; LLM allowlist is defined in code (LLM_ALLOWED_DOC_EXTS).
 
 # Classification rules (ordered; first-match wins)
 rules:
@@ -133,6 +133,13 @@ rules:
     tags: ["DPR"]
     confidence: 0.90
 
+
+  - id: "DOCS__XLSM_RULE_ONLY"
+    type: "ext"
+    match: [".xlsm"]
+    doc_type: "other"
+    confidence: 0.60
+    reason: "xlsm_rule_only_no_llm"
   - id: "DOCS__FALLBACK"
     type: "ext_group"
     group: "docs"

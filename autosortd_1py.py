@@ -186,6 +186,7 @@ def wait_until_stable(p: Path, timeout_s: int = 20) -> bool:
 # Extract snippet (docs only; best-effort)
 # -----------------------------
 MAX_SNIPPET_CHARS = 2500
+LLM_ALLOWED_DOC_EXTS = {".pdf", ".docx", ".xlsx"}
 
 
 def extract_snippet(p: Path) -> str:
@@ -635,10 +636,10 @@ def handle_file(
 
     decision = first_match_rule(filename, fullpath, ext, ext_groups, compiled_rules)
 
-    docs_exts = set([str(x).lower() for x in (ext_groups.get("docs", []) or [])])
+    llm_allowed_exts = {ext.lower() for ext in LLM_ALLOWED_DOC_EXTS}
 
     if decision is None or decision.confidence < 0.92:
-        if ext in docs_exts:
+        if ext in llm_allowed_exts:
             snippet = extract_snippet(p)
             meta = {"name": filename, "ext": ext, "size": p.stat().st_size}
             try:
