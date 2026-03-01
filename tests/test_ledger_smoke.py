@@ -2,6 +2,7 @@
 Smoke test: one move writes one ledger line with required keys.
 Run from repo root: pytest tests/test_ledger_smoke.py -v
 """
+
 import json
 import sys
 import tempfile
@@ -64,7 +65,11 @@ def test_one_move_writes_ledger_with_required_keys():
         )
 
         assert ledger_path.exists(), "ledger.jsonl should exist"
-        lines = [ln.strip() for ln in ledger_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        lines = [
+            ln.strip()
+            for ln in ledger_path.read_text(encoding="utf-8").splitlines()
+            if ln.strip()
+        ]
         assert len(lines) >= 1, "at least one ledger entry"
         entry = json.loads(lines[-1])
         missing = required_keys - set(entry.keys())

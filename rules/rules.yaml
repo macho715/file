@@ -16,7 +16,7 @@ stability_check:
 
 ignore:
   extensions: [".lnk"]
-  globs: ["~$*", "*.tmp", "*.bak"]
+  globs: ["~$*", "*.bak"]
 
 # Extension groups (Pass-0)
 ext_groups:

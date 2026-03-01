@@ -578,19 +578,22 @@ def handle_file(
     filename = p.name
     fullpath = str(p)
     ext = p.suffix.lower()
+    temp_exts = set([str(x).lower() for x in (ext_groups.get("temp", []) or [])])
+    is_temp_ext = ext in temp_exts
 
-    ignore_exts = set(
-        [
-            str(x).lower()
-            for x in (rules_cfg.get("ignore", {}).get("extensions", []) or [])
-        ]
-    )
-    ignore_globs = rules_cfg.get("ignore", {}).get("globs", []) or []
-    if ext in ignore_exts:
-        return
-    for g in ignore_globs:
-        if Path(filename).match(g):
+    if not is_temp_ext:
+        ignore_exts = set(
+            [
+                str(x).lower()
+                for x in (rules_cfg.get("ignore", {}).get("extensions", []) or [])
+            ]
+        )
+        ignore_globs = rules_cfg.get("ignore", {}).get("globs", []) or []
+        if ext in ignore_exts:
             return
+        for g in ignore_globs:
+            if Path(filename).match(g):
+                return
 
     st_cfg = rules_cfg.get("stability_check", {}) or {}
     st_ignore_exts = set(
@@ -599,7 +602,7 @@ def handle_file(
     if ext in st_ignore_exts:
         return
 
-    if st_cfg.get("enabled", True):
+    if is_temp_ext and st_cfg.get("enabled", True):
         timeout_s = int(st_cfg.get("timeout_seconds", 20))
         if not wait_until_stable(p, timeout_s=timeout_s):
             run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
