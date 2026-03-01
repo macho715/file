@@ -635,10 +635,10 @@ def handle_file(
 
     decision = first_match_rule(filename, fullpath, ext, ext_groups, compiled_rules)
 
-    docs_exts = set([str(x).lower() for x in (ext_groups.get("docs", []) or [])])
+    llm_docs_exts = {".pdf", ".docx", ".xlsx"}
 
     if decision is None or decision.confidence < 0.92:
-        if ext in docs_exts:
+        if ext in llm_docs_exts:
             snippet = extract_snippet(p)
             meta = {"name": filename, "ext": ext, "size": p.stat().st_size}
             try:
