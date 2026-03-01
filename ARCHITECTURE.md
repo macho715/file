@@ -146,7 +146,7 @@ flowchart LR
   Q2 --> L
 ```
 
-### 8.2 현재 구현(autosortd / YAML 경로)
+### 8.2 현재 구현(autosortd_1py / YAML 경로)
 
 ```mermaid
 flowchart LR
@@ -205,7 +205,6 @@ flowchart LR
 
 | 구성요소 | 설명 |
 |----------|------|
-| **autosortd.py** | 1회 스캔(run_once). 내장 룰 + YAML. LLM·watchdog 없음. |
 | **autosortd_1py.py** | 풀 데몬(Watchdog, LLM, staging, dup, 캐시). `C:\_AUTOSORT` 복사 후 **RUN_AUTOSORTD.cmd**로 기동. |
 | **RUN_AUTOSORTD.cmd** | CIM 프로세스 체크 + `cache\autosortd_watch_inbox.lock` + stale lock 정리. 로그: `logs\autosortd_runner.log`. |
 | **작업 스케줄러** | `\AUTOSORT\LLAMA_SERVER`, `\AUTOSORT\AUTOSORTD`(PT30S). 등록: `register_autosort_tasks.ps1`(관리자). |
@@ -255,17 +254,19 @@ flowchart LR
 
 ## 15. 현재 vs 전체 구현
 
-| 항목 | autosortd.py | autosortd_1py.py (풀) |
-|------|---------------------|------------------------|
-| 실행 | 1회 스캔(run_once) | Watchdog 데몬 + sweep |
-| 분류 | 내장 룰 + YAML | YAML 규칙 컴파일 |
-| LLM | 없음 | 있음(선별) |
-| Staging | 없음 | 있음 |
-| Dup | 경로만 | sha256 + cache |
-| Temp 안정성 | 2초 크기 비교 | timeout 기반 |
-| Ledger | 있음 | 있음 |
+| 항목 | autosortd_1py.py (현재 엔트리포인트) |
+|------|-------------------------------|
+| 실행 | Watchdog 데몬 + 선택적 sweep (`--sweep`) |
+| 분류 | YAML 규칙 컴파일 + 룰 우선 분기 |
+| LLM | 있음(문서 선별 호출) |
+| Staging | 있음 |
+| Dup | sha256 + cache |
+| Temp 안정성 | timeout 기반 안정성 체크 |
+| Ledger | 있음 (`logs/ledger.jsonl`) |
 
 ---
+
+> 참고: `autosortd.py`는 현재 저장소에 **미포함** 상태이며, 재도입은 **예정(미정)** 입니다. 재도입 시 문서/릴리스 노트에 즉시 반영합니다.
 
 ## 16. E2E 검증
 

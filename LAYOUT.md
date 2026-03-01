@@ -21,7 +21,6 @@ file/
   OCAL-AUTOSORT SSOT v0.1.md
   patch.md
   setting_plan.md
-  autosortd.py              # 메인 실행 스크립트 (run_once, YAML 지원)
   autosortd_1py.py          # 풀 데몬 (watchdog, LLM, staging, dup)
   run_ollama_serve.ps1
   install_ollama_env.ps1
@@ -77,7 +76,7 @@ file/
   rules/                    # rules.yaml, mapping.yaml (배포 시 복사)
   .venv/                    # Python 가상환경
   autosortd_1py.py          # 배포용 데몬 스크립트
-  RUN_AUTOSORTD.cmd         # autosortd 기동 (lock + 프로세스 체크 후 1회)
+  RUN_AUTOSORTD.cmd         # autosortd_1py 기동 (lock + 프로세스 체크 후 1회)
   start_llama_server.cmd    # WSL llama-server 기동 래퍼
   run_llama_server.sh       # WSL용 스크립트 원본
   register_autosort_tasks.ps1   # 작업 스케줄러 등록 (관리자, JSONL 로그)
@@ -111,3 +110,5 @@ file/
 | setting_plan.md | 설정·계획 메모 |
 | rules/rules.yaml | 분류 규칙 (ext_groups, ordered rules) |
 | rules/mapping.yaml | doc_type_map, tag_overrides, apply_gate |
+
+> 참고: `autosortd.py`는 현재 저장소에 포함되어 있지 않으며, 재도입 예정 시 문서에 “미포함/예정” 상태를 명시합니다.

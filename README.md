@@ -32,19 +32,21 @@
 - **LLAMA_SERVER**: 작업 `\AUTOSORT\LLAMA_SERVER` → `start_llama_server.cmd` (WSL `~/svc/run_llama_server.sh`). 로그온 시 즉시 기동.
 - 수동 1회 실행: `C:\_AUTOSORT\RUN_AUTOSORTD.cmd` (이미 떠 있으면 skip).
 
-**프로젝트/1회 스캔 (autosortd.py 또는 autosortd_1py.py)**
+**프로젝트/개발 엔트리포인트 (autosortd_1py.py)**
 
 ```bash
-# 1회 스캔, 이동 없이 확인 (권장)
-python autosortd.py --watch "D:\대상폴더" --base "C:\_AUTOSORT" --dry-run
+# 데몬 기동 (watchdog 감시)
+python autosortd_1py.py --watch "D:\대상폴더" --root "C:\_AUTOSORT" --llm "http://127.0.0.1:8080/v1"
 
-# 실제 이동
-python autosortd.py --watch "D:\대상폴더" [--base C:\_AUTOSORT]
+# 기동 시 기존 파일 1회 스윕 포함
+python autosortd_1py.py --watch "D:\대상폴더" --root "C:\_AUTOSORT" --sweep
 ```
 
-- `--watch`: 스캔할 폴더 (1회 스캔 후 종료).
-- `--base`: 출력 루트 (기본: `C:\_AUTOSORT` 또는 환경변수 `AUTOSORT_BASE`).
-- `--dry-run`: 이동·ledger 기록 없이 분류만 수행.
+- `--watch`: 감시할 폴더.
+- `--root`: 출력 루트 (기본 `C:\_AUTOSORT`).
+- `--llm`: 로컬 LLM 엔드포인트 (기본 `http://127.0.0.1:8080/v1`).
+- `--rules_dir`: 규칙 폴더 (기본 `C:\_AUTOSORT\rules`).
+- `--sweep`: 시작 시 기존 파일도 1회 처리.
 
 ---
 
@@ -65,10 +67,11 @@ python autosortd.py --watch "D:\대상폴더" [--base C:\_AUTOSORT]
 
 ## 스크립트 구분
 
-- **autosortd.py** — 1회 스캔(run_once), 내장 룰 + 선택 YAML. LLM·watchdog 없음.
 - **autosortd_1py.py** — 풀 데몬(Watchdog, LLM, staging, dup 해시, 캐시). 배포 시 `C:\_AUTOSORT\autosortd_1py.py` 복사 후 `RUN_AUTOSORTD.cmd`로 기동.
-- **RUN_AUTOSORTD.cmd** — CIM 프로세스 체크 + lock(`cache\autosortd_watch_inbox.lock`) + stale lock 정리 후 autosortd 1회 기동. 로그: `logs\autosortd_runner.log`.
+- **RUN_AUTOSORTD.cmd** — CIM 프로세스 체크 + lock(`cache\autosortd_watch_inbox.lock`) + stale lock 정리 후 autosortd_1py 1회 기동. 로그: `logs\autosortd_runner.log`.
 - **register_autosort_tasks.ps1** — 관리자 실행 시 `\AUTOSORT\LLAMA_SERVER`, `\AUTOSORT\AUTOSORTD` 작업 등록 (AUTOSORTD는 PT30S 지연).
+
+> 참고: `autosortd.py`는 **현재 저장소에 미포함** 상태입니다. 재도입 시 별도 릴리스 노트/문서 갱신으로 안내합니다.
 
 ---
 
