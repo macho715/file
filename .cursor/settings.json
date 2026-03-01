@@ -1,0 +1,6 @@
+{
+  "models": {
+    "default": "composer-1.5",
+    "codebase_indexing": "gemini-3-pro"
+  }
+}
