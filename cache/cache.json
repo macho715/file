@@ -1,0 +1,218 @@
+{
+  "cc84368347b6d099a596f91951945cf1c853933597c71fa441b585c3e94712a8": {
+    "run_id": "20260228-162306",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\USAGE_GUIDE.md",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "USAGE_GUIDE.md",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "24cd759547a0c06558d33b0aee326e95c77ce34f258f8b3a5edc2163dfef60cd": {
+    "run_id": "20260228-164636",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\USAGE_GUIDE__001.md",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "USAGE_GUIDE.md",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "e36e881f32ac1a3dd23bae6f3196a4f34e9d43ed163312c5083de6579816c0bd": {
+    "run_id": "20260228-164905",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\USAGE_GUIDE__002.md",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "USAGE_GUIDE.md",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "f8efabf3f01ad4840224e0bfbb68adb2fc8c0ce5480e0b8777933ac75bf91911": {
+    "run_id": "20260228-170222",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\CHECK.MD",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "CHECK.MD",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "e328c58ad63717d4551324dcb49e8bde4be8b4823a265be9b99e0d90d2a86fd5": {
+    "run_id": "20260228-170822",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Repos\\fix_check_line.py",
+    "decision": {
+      "doc_type": "dev_code",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "fix_check_line.py",
+      "confidence": 0.98,
+      "reasons": [
+        "rule:DEV__CODE"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Repos"
+  },
+  "a353b8c440a6784b772acb06e86c95cb3815c80d6024e2af657febc4d4d211ca": {
+    "run_id": "20260228-171406",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Repos\\run_llama_server.sh",
+    "decision": {
+      "doc_type": "dev_code",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "run_llama_server.sh",
+      "confidence": 0.98,
+      "reasons": [
+        "rule:DEV__CODE"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Repos"
+  },
+  "f3605be0cb15efab0405f6e31cf5b6849a70a6908762b10f694c626439058593": {
+    "run_id": "20260228-184300",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\WORKLOG_AUTOSORT_SCHEDULER_2026-02-28.md",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "WORKLOG_AUTOSORT_SCHEDULER_2026-02-28.md",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "1ad93d7a76ce6db2502b4998862f9328c4560f7b2d2dcfa3efa3daef1f32cfee": {
+    "run_id": "20260228-184523",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\CHANGELOG.MD",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "CHANGELOG.MD",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6": {
+    "run_id": "20260228-184623",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\CHANGELOG__001.MD",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "CHANGELOG.MD",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "35a3ed119d9094e7495ecd600ec5fa5ff60108ad9711ed0773f25d1f5006f8d8": {
+    "run_id": "20260301-035910",
+    "after": "c:\\Users\\minky\\Downloads\\file\\quarantine\\.cursorignore",
+    "decision": {
+      "doc_type": "other",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": ".cursorignore",
+      "confidence": 0.0,
+      "reasons": [
+        "no_rule_non_doc"
+      ],
+      "tags": []
+    },
+    "reason": "forced_quarantine_doc_type",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\quarantine"
+  },
+  "8b887b11ec8292aa0225e832e356978a0bf9cd63f031b6dccd49cc368e835670": {
+    "run_id": "20260301-044138",
+    "after": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes\\프로젝트 전체 설명 — DEV-PRESET Autosort.MD",
+    "decision": {
+      "doc_type": "dev_note",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "프로젝트 전체 설명 — DEV-PRESET Autosort.MD",
+      "confidence": 0.95,
+      "reasons": [
+        "rule:DEV__NOTES"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
+  },
+  "6911341d6d01d9aa80df8562ea0d20b0da43fa921c623e7e5909334bf2404d43": {
+    "run_id": "20260302-181533",
+    "after": "c:\\Users\\jichu\\Downloads\\file-claude-project-upgrade-VsJEE\\file-claude-project-upgrade-VsJEE\\out\\Dev\\Repos\\20260228-170703__rollback.py",
+    "decision": {
+      "doc_type": "dev_code",
+      "project": null,
+      "vendor": null,
+      "date": null,
+      "suggested_name": "20260228-170703__rollback.py",
+      "confidence": 0.98,
+      "reasons": [
+        "rule:DEV__CODE"
+      ],
+      "tags": []
+    },
+    "reason": "auto_apply",
+    "dest_dir": "c:\\Users\\jichu\\Downloads\\file-claude-project-upgrade-VsJEE\\file-claude-project-upgrade-VsJEE\\out\\Dev\\Repos"
+  }
+}
