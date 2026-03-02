@@ -6,3 +6,6 @@ __pycache__/
 dist/
 build/
 .env
+node_modules/
+autosort-desktop/node_modules/
+autosort-desktop/dist/
