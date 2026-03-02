@@ -196,23 +196,5 @@
     },
     "reason": "auto_apply",
     "dest_dir": "c:\\Users\\minky\\Downloads\\file\\out\\Dev\\Notes"
-  },
-  "6911341d6d01d9aa80df8562ea0d20b0da43fa921c623e7e5909334bf2404d43": {
-    "run_id": "20260302-181533",
-    "after": "c:\\Users\\jichu\\Downloads\\file-claude-project-upgrade-VsJEE\\file-claude-project-upgrade-VsJEE\\out\\Dev\\Repos\\20260228-170703__rollback.py",
-    "decision": {
-      "doc_type": "dev_code",
-      "project": null,
-      "vendor": null,
-      "date": null,
-      "suggested_name": "20260228-170703__rollback.py",
-      "confidence": 0.98,
-      "reasons": [
-        "rule:DEV__CODE"
-      ],
-      "tags": []
-    },
-    "reason": "auto_apply",
-    "dest_dir": "c:\\Users\\jichu\\Downloads\\file-claude-project-upgrade-VsJEE\\file-claude-project-upgrade-VsJEE\\out\\Dev\\Repos"
   }
 }

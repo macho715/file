@@ -29,9 +29,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| 장치 | HP OMEN 16-wf0xxx (x64, Intel i5-13500HX, 32GB RAM) |
-| OS | Windows. LLM은 다음 중 선택: WSL2 Ubuntu(llama-server), Windows Ollama, LM Studio 등. |
-| 모델 | Qwen2-1.5B급 권장. llama.cpp / Ollama / LM Studio 등 OpenAI 호환 엔드포인트 사용. |
+| 장치 | Surface Pro 11 (ARM64), CPU-only, 16GB RAM |
+| OS | Windows + WSL2 Ubuntu (llama-server용) |
+| 모델 | Qwen2-1.5B Instruct Q4_K_M (llama.cpp / Ollama 백업) |
 
 ---
 
@@ -39,7 +39,7 @@
 
 | 레이어 | 설명 |
 |--------|------|
-| **LLM Serve** | 선택: WSL2 `llama-server` :8080, Windows Ollama :11434, LM Studio 등. `--llm`으로 URL 지정. |
+| **LLM Serve (WSL2)** | `llama-server` 상주 `:8080/v1`. 백업: Ollama `:11434/v1`. |
 | **Autosort Daemon (Windows)** | inbox 감시 → 규칙/키워드(90%) → LLM(10%) → 이동 → ledger·캐시. `RUN_AUTOSORTD.cmd`(lock+프로세스 체크), `autosortd_1py.py`. |
 | **Storage** | inbox, out/, quarantine/, dup/, logs/, cache/ (AGENTS.md §1 트리). |
 
@@ -81,4 +81,4 @@
 
 ## 8. 요약
 
-룰 90% + LLM 10%로 로컬 폴더를 자동 정리. 삭제 없이 이동만, 모든 이동은 ledger 기록·롤백 가능. 로컬 PC(HP OMEN 16, x64) 자동 분류·이동 시스템.
+룰 90% + LLM 10%로 로컬 폴더를 자동 정리. 삭제 없이 이동만, 모든 이동은 ledger 기록·롤백 가능. Surface ARM64/CPU-only용 자동 분류·이동 시스템.

@@ -29,36 +29,22 @@
 **배포 환경 (C:\_AUTOSORT, 로그온 자동 기동)**
 
 - **AUTOSORTD**: 작업 스케줄러 `\AUTOSORT\AUTOSORTD` 등록됨 → 로그온 30초 후 `RUN_AUTOSORTD.cmd` 실행. inbox 감시 → 분류 → 이동 → ledger 기록. 중복 실행 방지(lock + 프로세스 체크) 적용.
-- **LLM 서버**: 작업 `\AUTOSORT\LLAMA_SERVER` → WSL 시 `start_llama_server.cmd`. Ollama/LM Studio 사용 시 해당 서버만 로그온 후 기동. `--llm`으로 URL 지정(기본 8080).
+- **LLAMA_SERVER**: 작업 `\AUTOSORT\LLAMA_SERVER` → `start_llama_server.cmd` (WSL `~/svc/run_llama_server.sh`). 로그온 시 즉시 기동.
 - 수동 1회 실행: `C:\_AUTOSORT\RUN_AUTOSORTD.cmd` (이미 떠 있으면 skip).
 
-**프로젝트에서 실행 (autosortd_1py.py)**
+**프로젝트/1회 스캔 (autosortd.py 또는 autosortd_1py.py)**
 
-```powershell
-# 1) 프로젝트 폴더로 이동
-cd "c:\Users\jichu\Downloads\file-claude-project-upgrade-VsJEE\file-claude-project-upgrade-VsJEE"
+```bash
+# 1회 스캔, 이동 없이 확인 (권장)
+python autosortd.py --watch "D:\대상폴더" --base "C:\_AUTOSORT" --dry-run
 
-# 2) 옵션 확인
-python autosortd_1py.py --help
-
-# 3) Ollama 사용 시 (권장 — Ollama 서버 먼저 실행: ollama serve)
-python autosortd_1py.py --root . --watch "D:\감시할_폴더" --rules_dir .\rules --llm "http://127.0.0.1:11434/v1" --llm-type ollama --sweep
-
-# 4) WSL llama.cpp 사용 시 (기본 8080)
-python autosortd_1py.py --root . --watch "D:\감시할_폴더" --rules_dir .\rules --sweep
+# 실제 이동
+python autosortd.py --watch "D:\대상폴더" [--base C:\_AUTOSORT]
 ```
 
-**LLM이 동작하려면**  
-- 프로그램 기본값은 **8080**(llama.cpp/WSL). **Ollama**만 쓸 때는 반드시 `--llm "http://127.0.0.1:11434/v1" --llm-type ollama` 지정.  
-- LLM 서버가 꺼져 있으면 PDF/DOCX/XLSX 중 룰로 못 잡는 파일은 **quarantine**으로 이동(LLMERROR 등).  
-- 코드·압축·노트 등은 룰만으로 분류되므로 LLM 없이도 이동됨.
-
-- `--root`: 출력 루트 (기본: `C:\_AUTOSORT`). 프로젝트에서 테스트 시 `.` 사용.
-- `--watch`: 스캔/감시할 폴더. 여러 개는 `--watch 폴더1 --watch 폴더2` 또는 쉼표 구분.
-- `--rules_dir`: `rules.yaml`, `mapping.yaml` 위치 (기본: `C:\_AUTOSORT\rules`).
-- `--sweep`: 기동 시 기존 파일 1회 처리 후, 새로 생기는 파일 계속 감시.
-- `--llm`: LLM API 주소 (기본: `http://127.0.0.1:8080/v1`). Ollama는 `http://127.0.0.1:11434/v1`.
-- 종료: **Ctrl+C**
+- `--watch`: 스캔할 폴더 (1회 스캔 후 종료).
+- `--base`: 출력 루트 (기본: `C:\_AUTOSORT` 또는 환경변수 `AUTOSORT_BASE`).
+- `--dry-run`: 이동·ledger 기록 없이 분류만 수행.
 
 ---
 

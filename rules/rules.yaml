@@ -26,6 +26,7 @@ ext_groups:
   notes: [".md", ".txt"]
   images: [".jpg", ".jpeg", ".png", ".webp"]
   docs: [".pdf", ".docx", ".xlsx", ".xlsm"]
+  docs_llm: [".pdf", ".docx", ".xlsx"]
 
 # Classification rules (ordered; first-match wins)
 rules:

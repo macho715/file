@@ -256,7 +256,7 @@ naming_templates:
 
 ## 적용 메모(최소)
 
-* **autosortd_1py.py**는 **rules_dir**의 rules.yaml/mapping.yaml을 로드하여 사용합니다. 내장 RULES만 쓰는 별도 진입점은 없습니다.
-* 규칙/매핑 변경은 rules.yaml, mapping.yaml만 수정하면 됩니다.
+* 위 YAML은 **“룰/매핑 확정본”**이고, 현재 `autosortd.py`가 **내장 RULES**를 쓰고 있으면 **YAML 로딩 코드 1회 패치**가 필요합니다.
+* 패치 없이 쓰려면: YAML 내용을 기존 `RULES`/`DOC_ROOTS` 상수에 그대로 옮기는 방식으로도 동일하게 동작합니다.
 
- **(1) autosortd_1py.py는 이미 YAML 로더와 tag_overrides, apply_gate(quarantine_doc_types)를 사용합니다.** (2)(3)은 mapping.yaml에서 설정 가능합니다.
+원하면 다음 턴에, **(1) autosortd.py에 YAML 로더 추가(약 30~50줄)** + **(2) tag_overrides 적용 로직** + **(3) fallback(other) 문서는 무조건 quarantine로 보내는 게이트**까지 “바로 실행되는 최종본”으로 정리해 드리겠습니다.

@@ -1,6 +1,6 @@
 # 시스템 아키텍처 — LOCAL-AUTOSORT SSOT (통합)
 
-로컬 PC: HP OMEN 16-wf0xxx (x64, Intel i5-13500HX, 32GB RAM). 설계·구현·배포를 단일 문서로 통합.
+Surface Pro 11 / ARM64 / CPU-only 기준. 설계·구현·배포를 단일 문서로 통합.
 
 ---
 
@@ -8,7 +8,7 @@
 
 - **목표**: 로컬 폴더(개발 파일 + 문서)를 **완전자동**으로 분류/이동하고, **Undo** 및 **감사로그(ledger)**를 남긴다.
 - **핵심 원칙**: **(1) 삭제 0%**, **(2) 개발 파일/폴더 리네임 금지**, **(3) 룰 우선(90%)**, **(4) 불확실=격리(Quarantine)**, **(5) 모든 변경은 ledger로 롤백 가능**.
-- **런타임 SSOT**: 로컬 LLM 서버 1개(WSL2 llama-server / Windows Ollama / LM Studio 등) + Windows Python Watcher 데몬(autosortd_1py). 배포 시 작업 스케줄러로 로그온 시 자동 기동.
+- **런타임 SSOT**: WSL2 Ubuntu에서 `llama-server` 상주 + Windows에서 Python Watcher 데몬(autosortd_1py). 배포 시 작업 스케줄러로 로그온 시 자동 기동.
 
 ---
 
@@ -43,7 +43,7 @@
 
 | No | Item   | Value                    | Risk       |
 | -- | ------ | ------------------------ | ---------- |
-|  1 | HW     | x64, Intel i5-13500HX, 32GB RAM (로컬 확인) | Medium(속도) |
+|  1 | HW     | ARM64, CPU-only, 16GB RAM| Medium(속도) |
 |  2 | 파일 유형 | 개발+문서 혼재           | Medium(오분류) |
 |  3 | 완전자동 | 사용자 승인 없이 move/rename | Medium(사고) |
 |  4 | 안전   | 삭제 0%, Undo 필수       | Low        |
@@ -64,8 +64,8 @@
 
 ```mermaid
 flowchart TB
-  subgraph LLM["LLM Serve Layer (WSL2/Ollama/기타)"]
-    L[로컬 LLM\n:8080 or :11434]
+  subgraph WSL["LLM Serve Layer (WSL2)"]
+    L[llama-server\nQwen2-1.5B Q4_K_M\n:8080]
   end
   subgraph WIN["Autosort Daemon (Windows)"]
     R[RUN_AUTOSORTD.cmd\nlock + process check]
@@ -81,7 +81,7 @@ flowchart TB
     CC[cache/cache.json]
   end
   TS[Task Scheduler\nLLAMA_SERVER\nAUTOSORTD +30s]
-  TS --> LLM
+  TS --> WSL
   TS --> WIN
   A --> IN
   A --> OUT
@@ -91,7 +91,7 @@ flowchart TB
   A --> CC
 ```
 
-- **LLM Serve Layer**: 로컬 모델 서버 1개. 기본 8080(llama.cpp/WSL) 또는 11434(Ollama). `--llm`으로 본인 환경에 맞게 지정.
+- **LLM Serve Layer**: `llama-server` 상주, `POST http://127.0.0.1:8080/v1/chat/completions`
 - **Autosort Daemon**: RUN_AUTOSORTD.cmd(중복 방지) → autosortd_1py (Watcher, Rule Router, Extractor, LLM Classifier, Actuator, Ledger/Cache)
 - **Storage**: inbox, out, quarantine, dup, logs, cache
 
@@ -103,22 +103,22 @@ flowchart TB
 sequenceDiagram
   participant User
   participant TS as Task Scheduler
-  participant LLMSVC as LLM 서버 기동
-  participant LLM as 로컬 LLM (8080/11434)
+  participant LLAMA as start_llama_server.cmd
+  participant WSL as WSL llama-server
   participant AUTOD as RUN_AUTOSORTD.cmd
   participant PY as autosortd_1py
 
   User->>TS: 로그온
-  TS->>LLMSVC: 즉시 실행 (WSL/Ollama 등)
-  LLMSVC->>LLM: 서버 기동
-  LLM-->>LLM: :8080 or :11434 리스닝
+  TS->>LLAMA: 즉시 실행
+  LLAMA->>WSL: ~/svc/run_llama_server.sh
+  WSL-->>WSL: :8080 리스닝
   TS->>AUTOD: 30초 후 실행
   AUTOD->>AUTOD: lock / 프로세스 체크
   AUTOD->>PY: 기동 (중복 시 skip)
   PY->>PY: inbox 감시 → 분류 → 이동 → ledger
 ```
 
-- **LLM 서버**: 로그온 시 WSL이면 `start_llama_server.cmd` → `~/svc/run_llama_server.sh`. Ollama면 `ollama serve` 등 별도 기동.
+- **LLAMA_SERVER**: 로그온 시 즉시 `start_llama_server.cmd` → WSL `~/svc/run_llama_server.sh`
 - **AUTOSORTD**: 로그온 30초 지연(PT30S) 후 `RUN_AUTOSORTD.cmd`. 등록: 관리자 PowerShell에서 `register_autosort_tasks.ps1` 실행.
 
 ---
@@ -146,14 +146,18 @@ flowchart LR
   Q2 --> L
 ```
 
-### 8.2 현재 구현 (autosortd_1py + YAML)
+### 8.2 현재 구현(autosortd / YAML 경로)
 
 ```mermaid
 flowchart LR
   A[FileInWatch] --> B[TempStable]
   B -->|No| Q[Quarantine]
-  B -->|Yes| E[rules.yaml 컴파일\nfirst_match_rule]
-  E --> G[ApplyGate + rule.action]
+  B -->|Yes| C[Classify]
+  C --> D{YAML?}
+  D -->|Yes| E[YamlRules]
+  D -->|No| F[BuiltinRules]
+  E --> G[ApplyGate]
+  F --> G
   G -->|Quarantine| Q
   G -->|OK| H[ResolveDest]
   H --> I[UniquePath]
@@ -163,9 +167,9 @@ flowchart LR
 ```
 
 - **TempStable**: `.crdownload`/`.part`/`.tmp` 크기 안정 후에만 진행.
-- **Classify**: `rules.yaml` + `mapping.yaml` 컴파일 → `first_match_rule` (rule `action` 적용 시 강제 quarantine).
+- **Classify**: YAML 있으면 `_classify_from_yaml`, 없으면 `rule_classify`.
 - **ApplyGate**: confidence &lt; threshold 또는 quarantine_doc_types → quarantine.
-- **ResolveDest**: mapping.yaml의 doc_type_map + tag_overrides. **UniquePath**: 충돌 시 `__{short_hash}` suffix.
+- **ResolveDest**: doc_type_map(YAML) 또는 DOC_ROOTS(내장). **UniquePath**: 충돌 시 `__{short_hash}` suffix.
 
 ---
 
@@ -197,12 +201,12 @@ flowchart LR
 
 ---
 
-## 10. 구성요소 (autosortd_1py 단일 진입점)
+## 10. 구성요소 (현재 구현)
 
 | 구성요소 | 설명 |
 |----------|------|
-| **autosortd.py** | **미구현(레거시).** 문서상 1회 스캔 역할은 autosortd_1py.py `--once`/`--dry-run`로 대체. |
-| **autosortd_1py.py** | **단일 진입점.** 데몬(Watchdog, LLM, staging, dup, 캐시) + `--once` 1회 스캔 + `--dry-run` 분류만. `--root`/`--base` alias. `C:\_AUTOSORT` 복사 후 **RUN_AUTOSORTD.cmd**로 기동. |
+| **autosortd.py** | 1회 스캔(run_once). 내장 룰 + YAML. LLM·watchdog 없음. |
+| **autosortd_1py.py** | 풀 데몬(Watchdog, LLM, staging, dup, 캐시). `C:\_AUTOSORT` 복사 후 **RUN_AUTOSORTD.cmd**로 기동. |
 | **RUN_AUTOSORTD.cmd** | CIM 프로세스 체크 + `cache\autosortd_watch_inbox.lock` + stale lock 정리. 로그: `logs\autosortd_runner.log`. |
 | **작업 스케줄러** | `\AUTOSORT\LLAMA_SERVER`, `\AUTOSORT\AUTOSORTD`(PT30S). 등록: `register_autosort_tasks.ps1`(관리자). |
 | **저장소** | inbox, out, quarantine, dup, logs, cache (위 트리). |
@@ -226,7 +230,7 @@ flowchart LR
 
 ## 12. LLM 인터페이스 계약
 
-- **Endpoint**: `POST {base_url}/v1/chat/completions` (예: llama.cpp `http://127.0.0.1:8080/v1`, Ollama `http://127.0.0.1:11434/v1`).
+- **Endpoint**: `POST {base_url}/v1/chat/completions` (예: `http://127.0.0.1:8080/v1/chat/completions`).
 - **Output**: doc_type, project, vendor, date, suggested_name, confidence, reasons (고정 스키마).
 - **결정론**: temperature=0, 스니펫 길이/프롬프트 템플릿 고정.
 
@@ -235,7 +239,7 @@ flowchart LR
 ## 13. Actuator / Ledger·Undo
 
 - **원자적 이동**: watch → staging → out/quarantine/dup. 실패 시 원복(best-effort).
-- **충돌**: 동일 파일명 시 `__{short_hash}`(8자 hex) suffix.
+- **충돌**: 동일 파일명 시 `__001` 등 suffix.
 - **삭제 금지**: 중복→dup/, 불확실→quarantine/.
 - **Ledger(JSONL)**: ts, run_id, action=move, sha256, reason, before, after.
 - **Rollback**: run_id 기준 after→before 역순 이동.
@@ -244,22 +248,22 @@ flowchart LR
 
 ## 14. 운영/배포
 
-- **LLM**: WSL2 시 `~/svc/run_llama_server.sh`(Qwen2-1.5B Q4_K_M 등). Windows Ollama 시 `ollama serve`. LM Studio 등 OpenAI 호환 엔드포인트 사용 가능. `--llm`으로 URL 지정.
+- **LLM(WSL2)**: Qwen2-1.5B Q4_K_M, CTX 2048. `~/svc/run_llama_server.sh`.
 - **Windows 데몬**: `--watch` 1개(기본 inbox). 로그온 시 작업 스케줄러로 자동 기동. 고빈도 시 타이머 스윕(예: 30s) 권장.
 
 ---
 
-## 15. 구현 비교 (autosortd_1py 기준)
+## 15. 현재 vs 전체 구현
 
-| 항목 | autosortd.py (미구현/레거시) | autosortd_1py.py (현재 구현) |
-|------|-----------------------------|------------------------------|
-| 실행 | (미구현) | Watchdog 데몬 + `--sweep` + `--once` 1회 스캔 + `--dry-run` |
-| 분류 | 문서만 | YAML 규칙 컴파일 |
-| LLM | (미구현) | 있음(선별) |
-| Staging | (미구현) | 있음 |
-| Dup | (미구현) | sha256 + cache |
-| Temp 안정성 | (미구현) | wait_until_stable timeout 기반 |
-| Ledger | 문서만 | 있음 |
+| 항목 | autosortd.py | autosortd_1py.py (풀) |
+|------|---------------------|------------------------|
+| 실행 | 1회 스캔(run_once) | Watchdog 데몬 + sweep |
+| 분류 | 내장 룰 + YAML | YAML 규칙 컴파일 |
+| LLM | 없음 | 있음(선별) |
+| Staging | 없음 | 있음 |
+| Dup | 경로만 | sha256 + cache |
+| Temp 안정성 | 2초 크기 비교 | timeout 기반 |
+| Ledger | 있음 | 있음 |
 
 ---
 
@@ -296,7 +300,7 @@ flowchart LR
 
 ## 20. 실행 체크리스트
 
-- **Prepare**: 로컬 LLM 서버 1개 기동(WSL2 llama-server / Ollama / LM Studio 등), `C:\_AUTOSORT\*` 트리, watch 1개 지정.
+- **Prepare**: WSL2 llama-server 상주, `C:\_AUTOSORT\*` 트리, watch 1개 지정.
 - **Pilot**: 샘플 50개 → 자동 적용률/격리율, 개발 파일 리네임 0건 확인.
 - **Build**: rules.yaml 외부화, 문서 스니펫 추출 안정화.
 - **Operate**: 일일 리포트, 고빈도 폴더 타이머 스윕.

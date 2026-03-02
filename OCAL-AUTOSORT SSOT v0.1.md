@@ -6,7 +6,7 @@
 
 * 목표: 로컬 폴더(주로 개발 파일 + 일부 문서)를 **완전자동**으로 분류/이동(필요 시 리네임)하고, **실수 복구(Undo)** 및 **감사로그(ledger)**를 남긴다.
 * 핵심 원칙: **(1) 삭제 0.00%**, **(2) 개발 파일/폴더 리네임 금지**, **(3) 룰 우선(90%)**, **(4) 불확실=격리(Quarantine)**, **(5) 모든 변경은 ledger로 롤백 가능**.
-* 런타임 SSOT: 로컬 LLM 서버 1개(WSL2 llama-server / Windows Ollama / LM Studio 등) + Windows에서 Python Watcher 데몬(파일 이벤트 처리). ([Llama.cpp - Run LLM Inference in C/C++][1])
+* 런타임 SSOT: WSL2 Ubuntu에서 `llama-server` 상주 + Windows에서 Python Watcher 데몬(파일 이벤트 처리). ([Llama.cpp - Run LLM Inference in C/C++][1])
 
 ---
 

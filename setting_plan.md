@@ -1,4 +1,4 @@
-1. **판정: 예(가능)** — **HP OMEN 16 (x64, Intel i5-13500HX, 32GB RAM)**에서 로컬 LLM/에이전트(파일정리) 구축 가능합니다.
+1. **판정: 예(가능)** — **Surface Pro 11(ARM64) + RAM 16.00GB + GPU 없음**에서도 로컬 LLM/에이전트(파일정리) 구축 가능합니다.
 2. **근거:** Ollama는 **Windows ARM64 바이너리(zip)**를 릴리즈 자산으로 제공하며, llama.cpp는 **CPU 빌드/실행**을 공식 README에서 안내합니다. ([GitHub][1])
 3. **다음행동:** 아래 **A(WSL2+llama.cpp) SSOT**로 먼저 세팅 → 이후 **B(Ollama ARM64)**는 편의 레이어로 추가하세요.
 
@@ -16,12 +16,10 @@
 
 | No | Item   | Value                  | Risk             | Evidence |
 | -: | ------ | ---------------------- | ---------------- | -------- |
-|  1 | Device | HP OMEN by HP Gaming Laptop 16-wf0xxx | Low              | 로컬 확인 |
-|  2 | Arch   | AMD64 (x64)            | Low              | 로컬 확인 |
-|  3 | CPU    | 13th Gen Intel Core i5-13500HX (20 logical) | Low | 로컬 확인 |
-|  4 | RAM    | 32 GB                  | Low              | 로컬 확인 |
-|  5 | GPU    | Intel UHD Graphics (내장) | Medium(속도)    | 로컬 확인 |
-|  6 | 목표   | 로컬 LLM + 완전자동 파일정리기 | Low              | 사용자 요청   |
+|  1 | Device | Surface Pro 11 (ARM64) | Low              | 사용자 제공   |
+|  2 | RAM    | 16.00 GB               | Medium(대형 모델 제한) | 사용자 제공   |
+|  3 | GPU    | 없음(CPU-only)           | Medium(속도)       | 사용자 제공   |
+|  4 | 목표     | 로컬 LLM + 완전자동 파일정리기    | Low              | 사용자 요청   |
 
 ---
 
@@ -35,14 +33,14 @@
 * Risk: Low
 * Time: Medium
 
-## Option B — **Ollama Windows (x64/ARM64)**
+## Option B — **Ollama Windows ARM64**
 
 * Pros: 설치/서빙 쉬움, 모델 관리 편함
 * Cons: CPU-only라 모델/CTX 보수적으로
 * Cost: 0.00 AED
 * Risk: Low~Medium
 * Time: Short
-* Evidence: Windows x64/ARM64 바이너리 제공 ([GitHub][1]). **현재 PC: x64.**
+* Evidence: Windows ARM64 zip 제공 ([GitHub][1])
 
 ## Option C — **LM Studio(GUI)**
 
