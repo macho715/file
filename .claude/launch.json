@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "autosort-renderer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:renderer", "--prefix", "file-main/autosort-desktop"],
+      "port": 5173
+    },
+    {
+      "name": "autosort-daemon",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["file-main/autosortd_1py.py", "--root", "autosort_run", "--watch", "autosort_run", "--rules_dir", "file-main/rules", "--sweep"],
+      "port": 9999
+    },
+    {
+      "name": "autosort-daemon-nollm",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["file-main/autosortd_1py.py", "--root", "autosort_run", "--watch", "autosort_run", "--rules_dir", "file-main/rules", "--no-llm", "--sweep"],
+      "port": 9998
+    },
+    {
+      "name": "autosort-dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["file-main/dashboard.py", "--root", "autosort_run", "--refresh", "5"],
+      "port": 9997
+    },
+    {
+      "name": "llama-server-wsl",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-c", "cd ~/llama.cpp/build && ./bin/llama-server --hf-repo itlwas/Qwen2-1.5B-Instruct-Q4_K_M-GGUF --hf-file qwen2-1.5b-instruct-q4_k_m.gguf -c 2048 --host 0.0.0.0 --port 8080"],
+      "port": 8080
+    }
+  ]
+}

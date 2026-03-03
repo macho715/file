@@ -1,0 +1,20 @@
+# 캐시·빌드
+__pycache__
+.pytest_cache
+.ruff_cache
+.venv
+venv
+node_modules
+
+# 런타임 출력 (대용량·인덱싱 제외)
+logs/
+cache/
+*.jsonl
+
+# 선택: out/ 전체 제외 시 토큰 절감 (out 내부 검색 필요하면 이 줄 삭제)
+# out/
+
+# 기타
+*.pyc
+*.egg-info
+.git/

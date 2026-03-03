@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\SAMSUNG\\\\Downloads\\\\file-main\\\\rules\"\" 2>/dev/null || ls -la /c/Users/SAMSUNG/Downloads/file-main/rules/ 2>/dev/null || find C:/Users/SAMSUNG/Downloads/file-main -name \"rules.yaml\" -o -name \"mapping.yaml \")",
+      "Bash(npm test)",
+      "Bash(npm run build:main)",
+      "Bash(find \"C:\\\\Users\\\\SAMSUNG\\\\Downloads\\\\file-main\\\\file-main\\\\autosort-desktop\\\\tests\\\\unit\" -name \"*.test.ts\" -exec basename {} ;)",
+      "Bash(find \"C:\\\\Users\\\\SAMSUNG\\\\Downloads\\\\file-main\\\\file-main\" -name \"package.json\" -exec grep -l \"vitest\\\\|jest\\\\|pytest\" {} ;)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
