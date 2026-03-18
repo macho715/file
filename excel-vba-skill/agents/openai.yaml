@@ -1,0 +1,7 @@
+interface:
+  display_name: "Excel VBA + Python Automation"
+  short_description: "VBA-first Excel automation with Python-built sheets"
+  default_prompt: "Use $excel-vba to design VBA-first automation and, if needed, build the Excel sheets in Python that the VBA workflow will use."
+
+policy:
+  allow_implicit_invocation: true

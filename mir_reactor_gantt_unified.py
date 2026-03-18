@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import List, Tuple
 
@@ -55,7 +55,7 @@ TEXT_BRIGHT   = "EEFCFF"
 BORDER_HEX    = "232840"
 
 TODAY = date(2026, 2, 16)
-BUILD_ID = os.getenv("MIR_BUILD_ID", datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"))
+BUILD_ID = os.getenv("MIR_BUILD_ID", datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"))
 STRICT_VALIDATION = os.getenv("MIR_STRICT_VALIDATION", "1").strip().lower() not in {"0", "false", "no"}
 MAX_XLSX_SIZE_MB = 50
 

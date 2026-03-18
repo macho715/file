@@ -158,6 +158,11 @@ End Sub
 Public Sub Recalculate_All_Scenarios()
     On Error GoTo EH
     Dim ws As Worksheet
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim prevCalc As XlCalculation
+    
+    BeginOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     For Each ws In ThisWorkbook.Worksheets
         If IsGanttSheet(ws) Then
             If CfgOn("CFG_AUTO_SCHEDULE_PTO", False) Then
@@ -166,9 +171,12 @@ Public Sub Recalculate_All_Scenarios()
             RefreshGantt ws, True
         End If
     Next ws
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Recalculate_All_Scenarios", "All scenarios recalculated"
     Exit Sub
 EH:
+    On Error Resume Next
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Recalculate_All_Scenarios", Err.Number & " - " & Err.Description
 End Sub
 
@@ -192,33 +200,54 @@ End Sub
 Public Sub Reset_All_Scenarios_To_Baseline()
     On Error GoTo EH
     Dim ws As Worksheet
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim prevCalc As XlCalculation
+    
+    BeginOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     For Each ws In ThisWorkbook.Worksheets
         If IsGanttSheet(ws) Then
             RestoreFromBaseline ws
             RefreshGantt ws, True
         End If
     Next ws
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Reset_All_Scenarios_To_Baseline", "All scenarios reset"
     Exit Sub
 EH:
+    On Error Resume Next
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Reset_All_Scenarios_To_Baseline", Err.Number & " - " & Err.Description
 End Sub
 
 Public Sub Protect_All_Gantt()
     On Error GoTo EH
     Dim ws As Worksheet
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim prevCalc As XlCalculation
+    
+    BeginOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     For Each ws In ThisWorkbook.Worksheets
         If IsGanttSheet(ws) Then ApplyProtection ws, True
     Next ws
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     MsgBox "Sheets protected (inputs still editable).", vbInformation
     Exit Sub
 EH:
+    On Error Resume Next
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Protect_All_Gantt", Err.Number & " - " & Err.Description
 End Sub
 
 Public Sub Unprotect_All_Gantt()
     On Error GoTo EH
     Dim ws As Worksheet
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim prevCalc As XlCalculation
+    
+    BeginOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     For Each ws In ThisWorkbook.Worksheets
         If IsGanttSheet(ws) Then
             On Error Resume Next
@@ -226,9 +255,12 @@ Public Sub Unprotect_All_Gantt()
             On Error GoTo EH
         End If
     Next ws
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     MsgBox "Sheets unprotected.", vbInformation
     Exit Sub
 EH:
+    On Error Resume Next
+    EndOptimizedBlock prevEvents, prevScreenUpdating, prevCalc
     LogMsg "Unprotect_All_Gantt", Err.Number & " - " & Err.Description
 End Sub
 

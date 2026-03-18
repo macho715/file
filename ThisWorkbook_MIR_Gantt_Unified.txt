@@ -5,8 +5,11 @@ Option Explicit
 ' ============================================================
 
 Private Sub Workbook_Open()
-    On Error Resume Next
+    On Error GoTo EH
     modMIR_Gantt_Unified.Init_Unified_System
+    Exit Sub
+EH:
+    modMIR_Gantt_Unified.LogMsg "Workbook_Open", Err.Number & " - " & Err.Description
 End Sub
 
 Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
