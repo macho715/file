@@ -1,0 +1,30 @@
+Option Explicit
+
+' ============================================================
+' ThisWorkbook Event Handlers for MIR Gantt Unified
+' ============================================================
+
+Private Sub Workbook_Open()
+    On Error Resume Next
+    modMIR_Gantt_Unified.Init_Unified_System
+End Sub
+
+Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
+    On Error GoTo EH
+    If TypeName(Sh) <> "Worksheet" Then Exit Sub
+    If Left$(Sh.Name, 6) <> "Gantt_" Then Exit Sub
+    modMIR_Gantt_Unified.MIR_OnSelectionChange Sh, Target
+    Exit Sub
+EH:
+    modMIR_Gantt_Unified.LogMsg "SheetSelectionChange", Err.Number & " - " & Err.Description, Sh.Name, Target.Row, Target.Column
+End Sub
+
+Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
+    On Error GoTo EH
+    If TypeName(Sh) <> "Worksheet" Then Exit Sub
+    If Left$(Sh.Name, 6) <> "Gantt_" Then Exit Sub
+    modMIR_Gantt_Unified.MIR_OnChange Sh, Target
+    Exit Sub
+EH:
+    modMIR_Gantt_Unified.LogMsg "SheetChange", Err.Number & " - " & Err.Description, Sh.Name, Target.Row, Target.Column
+End Sub
