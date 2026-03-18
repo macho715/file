@@ -1,0 +1,142 @@
+# C:\_AUTOSORT\rules\rules.yaml (or repo rules/rules.yaml)
+version: "SSOT.v0.1"
+preset: "DEV_FIRST_CPU_ONLY"
+
+# Global behavior
+auto_apply_confidence: 0.90
+rename:
+  dev_rename_allowed: false
+  docs_rename_default: "keep"
+
+# .crdownload/.part/.tmp: do NOT list here; they go through wait_until_stable()
+# then rule TEMP__INCOMPLETE_DOWNLOAD -> action: quarantine (applied in resolver),
+# destination is decided by mapping.temp (기본: out\Temp)
+stability_check:
+  enabled: true
+  timeout_seconds: 20
+  ignore_extensions: []
+
+ignore:
+  extensions: [".lnk"]
+  globs: ["~$*", "*.tmp", "*.bak"]
+
+# Extension groups (Pass-0)
+ext_groups:
+  temp: [".crdownload", ".part", ".tmp"]
+  archives: [".zip", ".7z", ".rar", ".tar", ".gz"]
+  dev_code: [".py", ".js", ".ts", ".tsx", ".json", ".yml", ".yaml", ".toml", ".ini", ".cfg", ".ps1", ".sh", ".bat", ".cmd", ".ipynb"]
+  notes: [".md", ".txt"]
+  images: [".jpg", ".jpeg", ".png", ".webp"]
+  docs: [".pdf", ".docx", ".xlsx", ".xlsm"]
+
+# Classification rules (ordered; first-match wins)
+rules:
+  - id: "TEMP__INCOMPLETE_DOWNLOAD"
+    type: "ext"
+    match: [".crdownload", ".part", ".tmp"]
+    doc_type: "temp"
+    confidence: 0.99
+    action: "quarantine"
+    reason: "incomplete_or_temp"
+
+  - id: "ARCHIVE__TR_DASH_MAIN"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)^tr_dash-main(\\s*\\(\\d+\\))?\\.(zip|7z|rar)$"
+    doc_type: "dev_archive"
+    tags: ["tr_dash"]
+    confidence: 0.99
+
+  - id: "ARCHIVE__DRIVE_DOWNLOAD_ZIP"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)^drive-download-\\d{8}T\\d{6}Z-\\d+-\\d+\\.(zip|7z)$"
+    doc_type: "dev_archive"
+    tags: ["drive_download"]
+    confidence: 0.99
+
+  - id: "ARCHIVE__GENERIC"
+    type: "ext_group"
+    group: "archives"
+    doc_type: "dev_archive"
+    confidence: 0.98
+
+  - id: "DEV__CODE"
+    type: "ext_group"
+    group: "dev_code"
+    doc_type: "dev_code"
+    confidence: 0.98
+
+  - id: "DEV__NOTES"
+    type: "ext_group"
+    group: "notes"
+    doc_type: "dev_note"
+    confidence: 0.95
+
+  - id: "PHOTO__ALL"
+    type: "ext_group"
+    group: "images"
+    doc_type: "photo"
+    confidence: 0.95
+
+  - id: "OPS__AGI_TR__DPR"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)(\\bAGI[_ -]?TR\\b.*\\bDPR\\b|\\bDPR\\b.*\\bAGI[_ -]?TR\\b)"
+    doc_type: "ops_doc"
+    tags: ["AGI_TR", "DPR"]
+    confidence: 0.95
+
+  - id: "OPS__AGI_TR"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)\\bAGI[_ -]?TR\\b"
+    doc_type: "ops_doc"
+    tags: ["AGI_TR"]
+    confidence: 0.93
+
+  - id: "OPS__MAMMOET__DPR"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)(\\bmamm?oet\\b.*\\bDPR\\b|\\bDPR\\b.*\\bmamm?oet\\b)"
+    doc_type: "ops_doc"
+    tags: ["Mammoet", "DPR"]
+    confidence: 0.95
+
+  - id: "OPS__MAMMOET__TR"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)\\bmamm?oet\\b.*\\bTR\\b"
+    doc_type: "ops_doc"
+    tags: ["Mammoet", "TR"]
+    confidence: 0.93
+
+  - id: "OPS__VERIFICATION"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)\\bverification\\b"
+    doc_type: "ops_doc"
+    tags: ["Verification"]
+    confidence: 0.92
+
+  - id: "OPS__CHARTERING_DURATION_COMPARISON"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)\\b(chartering|duration|comparison)\\b"
+    doc_type: "ops_doc"
+    tags: ["Chartering"]
+    confidence: 0.92
+
+  - id: "OPS__DPR_GENERIC"
+    type: "regex"
+    target: "name"
+    pattern: "(?i)\\bDPR\\b"
+    doc_type: "ops_doc"
+    tags: ["DPR"]
+    confidence: 0.90
+
+  - id: "DOCS__FALLBACK"
+    type: "ext_group"
+    group: "docs"
+    doc_type: "other"
+    confidence: 0.60

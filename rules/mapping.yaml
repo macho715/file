@@ -1,0 +1,123 @@
+﻿# C:\_AUTOSORT\rules\mapping.yaml (or repo rules/mapping.yaml)
+version: "SSOT.v0.1"
+preset: "DEV_FIRST_CPU_ONLY"
+
+paths:
+  root_out: "out"
+  quarantine: "quarantine"
+  dup: "dup"
+  temp: "out\\Temp"
+
+# doc_type destination relative to root_out
+
+doc_type_map:
+  dev_code: "Dev\\Repos"
+  dev_repo: "Dev\\Repos"
+  dev_config: "Dev\\Config"
+  dev_note: "Dev\\Notes"
+  dev_archive: "Dev\\Archives"
+  ops_doc: "Docs\\Ops"
+  invoice: "Docs\\Invoice"
+  cipl_pl_bl_boe_do: "Docs\\CIPL_PL_BL_BOE_DO"
+  contract: "Docs\\Contracts"
+  stowage: "Ops\\Stowage_Stability"
+  port_marine: "Ops\\Port_Marine"
+  warehouse: "WH\\WMS_Inventory"
+  photo: "Photos\\Yard_Site"
+  other: "Docs\\Other"
+  temp: "Temp"
+
+# tag_overrides (first match wins)
+tag_overrides:
+  - when_all: ["tr_dash"]
+    dest_rel: "Dev\\Archives\\tr_dash-main"
+    rename_policy: "keep"
+
+  - when_all: ["drive_download"]
+    dest_rel: "Dev\\Archives\\drive-download"
+    rename_policy: "keep"
+
+  - when_all: ["AGI_TR", "DPR"]
+    dest_rel: "Docs\\Ops\\AGI_TR\\DPR"
+    rename_policy: "keep"
+
+  - when_all: ["AGI_TR"]
+    dest_rel: "Docs\\Ops\\AGI_TR"
+    rename_policy: "keep"
+
+  - when_all: ["Mammoet", "DPR"]
+    dest_rel: "Docs\\Ops\\Mammoet\\DPR"
+    rename_policy: "keep"
+
+  - when_all: ["Mammoet", "TR"]
+    dest_rel: "Docs\\Ops\\Mammoet\\TR"
+    rename_policy: "keep"
+
+  - when_all: ["Verification"]
+    dest_rel: "Docs\\Ops\\Verification"
+    rename_policy: "keep"
+
+  - when_all: ["Chartering"]
+    dest_rel: "Docs\\Ops\\Chartering"
+    rename_policy: "keep"
+
+rename_policy:
+  dev_code: "keep"
+  dev_repo: "keep"
+  dev_config: "keep"
+  dev_note: "keep"
+  dev_archive: "keep"
+  ops_doc: "keep"
+  other: "keep"
+  photo: "keep"
+  temp: "keep"
+
+apply_gate:
+  quarantine_below: 0.90
+  quarantine_doc_types: ["other"]
+  allow_auto_apply_doc_types:
+    - "dev_code"
+    - "dev_archive"
+    - "dev_note"
+    - "ops_doc"
+    - "photo"
+    - "temp"
+    - "invoice"
+    - "contract"
+    - "stowage"
+    - "port_marine"
+    - "warehouse"
+    - "cipl_pl_bl_boe_do"
+
+naming_templates:
+  ops_doc: "{orig}"
+  other: "{orig}"
+  dev_archive: "{orig}"
+  dev_code: "{orig}"
+
+# project_overrides
+# append_subdir: true
+project_overrides:
+  - project: "AGI_TR"
+    doc_types: ["ops_doc", "invoice", "contract", "cipl_pl_bl_boe_do"]
+    append_subdir: true
+
+  - project: "Mammoet"
+    doc_types: ["ops_doc", "invoice", "contract"]
+    append_subdir: true
+
+  - project: "HVDC"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  - project: "ADNOC"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  - project: "DPR"
+    doc_types: ["ops_doc"]
+    append_subdir: true
+
+  - project: "__any__"
+    doc_types: ["ops_doc"]
+    append_subdir: true
