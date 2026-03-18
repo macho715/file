@@ -5,8 +5,8 @@ This guide is for installing the same `excel-vba` Codex skill on your other two 
 ## Files to copy
 
 Copy one of these to the target PC:
-- [excel-vba-skill-package-20260318.zip](C:/Users/jichu/Downloads/mir/file-macho715-patch-1/excel-vba-skill-package-20260318.zip)
-- or the unpacked folder [excel-vba-skill](C:/Users/jichu/Downloads/mir/file-macho715-patch-1/excel-vba-skill)
+- [excel-vba-skill-package-20260318.zip](./excel-vba-skill-package-20260318.zip)
+- or the unpacked folder [excel-vba-skill](./excel-vba-skill)
 
 Recommended:
 - use the zip file
@@ -22,10 +22,9 @@ Recommended:
 ### Option A: install from zip
 
 1. Copy `excel-vba-skill-package-20260318.zip` to the target PC
-2. Extract it to any local folder
-3. Open the extracted `excel-vba-skill` folder
-4. Right-click PowerShell in that folder, or open PowerShell and move into the folder
-5. Run:
+2. Extract it to any local folder (files land directly in that folder — no sub-folder is created)
+3. Open PowerShell and move into the folder where you extracted the zip
+4. Run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install_excel_vba_skill.ps1
