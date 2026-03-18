@@ -10,3 +10,4 @@ build/
 node_modules/
 autosort-desktop/node_modules/
 autosort-desktop/dist/
+~$*.xls*
